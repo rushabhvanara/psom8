@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Power Flow Control with FACTS Controllers Simulation</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #38bdf8;
+      --accent-green: #4ade80;
+      --accent-orange: #fb923c;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    header h1 { font-size: 1.8rem; color: var(--accent-color); margin-bottom: 5px; }
+    header p { color: var(--text-muted); font-size: 0.95rem; }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 992px) {
+      .grid-container { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      color: var(--accent-color);
+    }
+
+    .control-group {
+      margin-bottom: 16px;
+    }
+
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+    }
+
+    .control-group label span {
+      color: var(--accent-color);
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+    }
+
+    select {
+      background: var(--bg-color);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent-color);
+      cursor: pointer;
+    }
+
+    .fact-panel {
+      background-color: rgba(15, 23, 42, 0.5);
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 15px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      background-color: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .metric-card .title { font-size: 0.75rem; color: var(--text-muted); }
+    .metric-card .value { font-size: 1.2rem; font-weight: bold; margin-top: 4px; color: var(--accent-green); }
+
+    .canvas-container {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 20px;
+    }
+
+    canvas {
+      width: 100%;
+      background-color: #0b1120;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      display: block;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      background: var(--border-color);
+      color: var(--accent-color);
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Power Flow Control with FACTS Controllers</h1>
+  <p>Interactive Web Simulation for Transmission System Analysis (TCSC, SSSC, UPFC)</p>
+</header>
+
+<div class="grid-container">
+
+  <!-- LEFT CONTROL PANEL -->
+  <div class="card">
+    <h2>Control Parameters</h2>
+
+    <div class="control-group">
+      <label for="factsMode">FACTS Controller Type</label>
+      <select id="factsMode" onchange="toggleFACTSMode()">
+        <option value="none">None (Uncompensated)</option>
+        <option value="tcsc">TCSC (Thyristor Controlled Series Cap)</option>
+        <option value="sssc">SSSC (Static Synchronous Series Comp)</option>
+        <option value="upfc">UPFC (Unified Power Flow Controller)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="delta">Power Angle (&delta;) <span id="deltaVal">30°</span></label>
+      <input type="range" id="delta" min="0" max="90" value="30" oninput="updateSim()">
+    </div>
+
+    <div class="control-group">
+      <label for="xline">Line Reactance (X<sub>line</sub>) <span id="xlineVal">0.40 p.u.</span></label>
+      <input type="range" id="xline" min="0.1" max="1.0" step="0.05" value="0.4" oninput="updateSim()">
+    </div>
+
+    <!-- TCSC Controls -->
+    <div id="tcscControls" class="fact-panel" style="display:none;">
+      <h3 style="font-size:0.85rem; color: var(--accent-orange); margin-bottom:10px;">TCSC Settings</h3>
+      <div class="control-group">
+        <label for="ktcsc">Compensation (k<sub>c</sub>) <span id="ktcscVal">30%</span></label>
+        <input type="range" id="ktcsc" min="0" max="70" value="30" oninput="updateSim()">
+      </div>
+    </div>
+
+    <!-- SSSC Controls -->
+    <div id="ssscControls" class="fact-panel" style="display:none;">
+      <h3 style="font-size:0.85rem; color: var(--accent-orange); margin-bottom:10px;">SSSC Settings</h3>
+      <div class="control-group">
+        <label for="vsssc">Injected V<sub>q</sub> <span id="vssscVal">0.10 p.u.</span></label>
+        <input type="range" id="vsssc" min="-0.25" max="0.25" step="0.01" value="0.10" oninput="updateSim()">
+      </div>
+    </div>
+
+    <!-- UPFC Controls -->
+    <div id="upfcControls" class="fact-panel" style="display:none;">
+      <h3 style="font-size:0.85rem; color: var(--accent-orange); margin-bottom:10px;">UPFC Series Settings</h3>
+      <div class="control-group">
+        <label for="vse">Series Voltage (V<sub>se</sub>) <span id="vseVal">0.10 p.u.</span></label>
+        <input type="range" id="vse" min="0" max="0.25" step="0.01" value="0.10" oninput="updateSim()">
+      </div>
+      <div class="control-group">
+        <label for="thetase">Injection Angle (&theta;<sub>se</sub>) <span id="thetaseVal">90°</span></label>
+        <input type="range" id="thetase" min="0" max="360" value="90" oninput="updateSim()">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT VISUALIZATION PANEL -->
+  <div class="canvas-container">
+    
+    <!-- METRICS DISPLAY -->
+    <div class="card" style="padding-bottom:10px;">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="title">Active Power Flow (P)</div>
+          <div class="value" id="pVal">0.00 p.u.</div>
+        </div>
+        <div class="metric-card">
+          <div class="title">Sending Q (Q<sub>1</sub>)</div>
+          <div class="value" id="q1Val" style="color:#38bdf8;">0.00 p.u.</div>
+        </div>
+        <div class="metric-card">
+          <div class="title">Receiving Q (Q<sub>2</sub>)</div>
+          <div class="value" id="q2Val" style="color:#38bdf8;">0.00 p.u.</div>
+        </div>
+        <div class="metric-card">
+          <div class="title">Line Current (|I|)</div>
+          <div class="value" id="iVal" style="color:#e879f9;">0.00 p.u.</div>
+        </div>
+        <div class="metric-card">
+          <div class="title">P Transfer Boost</div>
+          <div class="value" id="boostVal" style="color:#fb923c;">0.0%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SINGLE LINE DIAGRAM ANIMATION CANVAS -->
+    <div class="card">
+      <h2>Transmission Line Diagram <span class="badge" id="modeBadge">UNCOMPENSATED</span></h2>
+      <canvas id="sldCanvas" height="180"></canvas>
+    </div>
+
+    <!-- P-DELTA CURVE GRAPH CANVAS -->
+    <div class="card">
+      <h2>P - &delta; Power Curve Characteristic</h2>
+      <canvas id="curveCanvas" height="220"></canvas>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  // Simulation State Variables
+  const V1 = 1.0, V2 = 1.0;
+  let particles = [];
+  
+  // Animation timing
+  let animationFrameId;
+
+  // Initialize Particle Flow Simulation
+  for(let i = 0; i < 25; i++) {
+    particles.push({ x: Math.random(), y: 0.5 });
+  }
+
+  function toggleFACTSMode() {
+    const mode = document.getElementById('factsMode').value;
+    document.getElementById('tcscControls').style.display = (mode === 'tcsc') ? 'block' : 'none';
+    document.getElementById('ssscControls').style.display = (mode === 'sssc') ? 'block' : 'none';
+    document.getElementById('upfcControls').style.display = (mode === 'upfc') ? 'block' : 'none';
+    document.getElementById('modeBadge').innerText = mode.toUpperCase();
+    updateSim();
+  }
+
+  function updateSim() {
+    const mode = document.getElementById('factsMode').value;
+    const deltaDeg = parseFloat(document.getElementById('delta').value);
+    const X_line = parseFloat(document.getElementById('xline').value);
+    const delta = deltaDeg * Math.PI / 180;
+
+    document.getElementById('deltaVal').innerText = deltaDeg + '°';
+    document.getElementById('xlineVal').innerText = X_line.toFixed(2) + ' p.u.';
+
+    let P = 0, Q1 = 0, Q2 = 0, I = 0;
+    let P_base = (V1 * V2 / X_line) * Math.sin(delta);
+
+    if (mode === 'none') {
+      P = P_base;
+      Q1 = (V1 / X_line) * (V1 - V2 * Math.cos(delta));
+      Q2 = (V2 / X_line) * (V1 * Math.cos(delta) - V2);
+      I = Math.sqrt(Math.pow(V1 - V2*Math.cos(delta), 2) + Math.pow(V2*Math.sin(delta), 2)) / X_line;
+    }
+    else if (mode === 'tcsc') {
+      const kc = parseFloat(document.getElementById('ktcsc').value) / 100;
+      document.getElementById('ktcscVal').innerText = (kc * 100).toFixed(0) + '%';
+      
+      const X_eff = X_line * (1 - kc);
+      P = (V1 * V2 / X_eff) * Math.sin(delta);
+      Q1 = (V1 / X_eff) * (V1 - V2 * Math.cos(delta));
+      Q2 = (V2 / X_eff) * (V1 * Math.cos(delta) - V2);
+      I = Math.sqrt(Math.pow(V1 - V2*Math.cos(delta), 2) + Math.pow(V2*Math.sin(delta), 2)) / X_eff;
+    }
+    else if (mode === 'sssc') {
+      const Vq = parseFloat(document.getElementById('vsssc').value);
+      document.getElementById('vssscVal').innerText = Vq.toFixed(2) + ' p.u.';
+
+      P = (V1 * V2 / X_line) * Math.sin(delta) + (V1 * Vq / X_line) * Math.cos(delta / 2);
+      Q1 = (V1 / X_line) * (V1 - V2 * Math.cos(delta)) + (V1 * Vq / X_line) * Math.sin(delta / 2);
+      Q2 = (V2 / X_line) * (V1 * Math.cos(delta) - V2) - (V2 * Vq / X_line) * Math.sin(delta / 2);
+      I = Math.abs(P) / (V1 * Math.cos(delta/2) || 1);
+    }
+    else if (mode === 'upfc') {
+      const Vse = parseFloat(document.getElementById('vse').value);
+      const thetaDeg = parseFloat(document.getElementById('thetase').value);
+      const thetaSe = thetaDeg * Math.PI / 180;
+
+      document.getElementById('vseVal').innerText = Vse.toFixed(2) + ' p.u.';
+      document.getElementById('thetaseVal').innerText = thetaDeg + '°';
+
+      // UPFC Series injected power flow model equations
+      P = (V1 * V2 / X_line) * Math.sin(delta) + (V1 * Vse / X_line) * Math.sin(thetaSe - delta);
+      Q1 = (V1 / X_line) * (V1 + Vse * Math.cos(delta - thetaSe) - V2 * Math.cos(delta));
+      Q2 = (V2 / X_line) * (V1 * Math.cos(delta) + Vse * Math.cos(thetaSe) - V2);
+      
+      const V_diff_re = V1 * Math.cos(delta) + Vse * Math.cos(thetaSe) - V2;
+      const V_diff_im = V1 * Math.sin(delta) + Vse * Math.sin(thetaSe);
+      I = Math.sqrt(V_diff_re * V_diff_re + V_diff_im * V_diff_im) / X_line;
+    }
+
+    const boost = P_base !== 0 ? ((P - P_base) / Math.abs(P_base)) * 100 : 0;
+
+    // Update Output UI
+    document.getElementById('pVal').innerText = P.toFixed(3) + ' p.u.';
+    document.getElementById('q1Val').innerText = Q1.toFixed(3) + ' p.u.';
+    document.getElementById('q2Val').innerText = Q2.toFixed(3) + ' p.u.';
+    document.getElementById('iVal').innerText = I.toFixed(3) + ' p.u.';
+    document.getElementById('boostVal').innerText = (boost >= 0 ? '+' : '') + boost.toFixed(1) + '%';
+
+    drawSLD(P, mode);
+    drawCurves(deltaDeg, P, mode, X_line);
+  }
+
+  // Draw Single Line Diagram with dynamic power flow particles
+  function drawSLD(P, mode) {
+    const canvas = document.getElementById('sldCanvas');
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width = canvas.parentElement.clientWidth - 40;
+    const height = canvas.height = 180;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const bus1X = 80, bus2X = width - 80, lineY = height / 2;
+
+    // Transmission Line
+    ctx.beginPath();
+    ctx.moveTo(bus1X, lineY);
+    ctx.lineTo(bus2X, lineY);
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+    // FACTS Box in the Middle
+    const factsX = (bus1X + bus2X) / 2;
+    ctx.fillStyle = mode === 'none' ? '#334155' : '#fb923c';
+    ctx.fillRect(factsX - 35, lineY - 25, 70, 50);
+    ctx.strokeStyle = '#f8fafc';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(factsX - 35, lineY - 25, 70, 50);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(mode === 'none' ? 'LINE' : mode.toUpperCase(), factsX, lineY + 5);
+
+    // Buses
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 8;
+    
+    // Bus 1
+    ctx.beginPath();
+    ctx.moveTo(bus1X, lineY - 40);
+    ctx.lineTo(bus1X, lineY + 40);
+    ctx.stroke();
+
+    // Bus 2
+    ctx.beginPath();
+    ctx.moveTo(bus2X, lineY - 40);
+    ctx.lineTo(bus2X, lineY + 40);
+    ctx.stroke();
+
+    // Bus Labels
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12px sans-serif';
+    ctx.fillText("Bus 1 (Sending)", bus1X, lineY - 50);
+    ctx.fillText("Bus 2 (Receiving)", bus2X, lineY - 50);
+
+    // Dynamic Flow Particles
+    const speed = P * 0.02;
+    ctx.fillStyle = '#4ade80';
+    
+    particles.forEach(p => {
+      p.x += speed;
+      if (p.x > 1) p.x = 0;
+      if (p.x < 0) p.x = 1;
+
+      const px = bus1X + p.x * (bus2X - bus1X);
+      ctx.beginPath();
+      ctx.arc(px, lineY, 5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  // Draw P-Delta Characteristic Curves
+  function drawCurves(currentDelta, currentP, mode, X_line) {
+    const canvas = document.getElementById('curveCanvas');
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width = canvas.parentElement.clientWidth - 40;
+    const height = canvas.height = 220;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const margin = { left: 50, right: 20, top: 20, bottom: 40 };
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+
+    // Draw Axes
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(margin.left, margin.top);
+    ctx.lineTo(margin.left, height - margin.bottom);
+    ctx.lineTo(width - margin.right, height - margin.bottom);
+    ctx.stroke();
+
+    // Axis Labels
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('0°', margin.left, height - margin.bottom + 15);
+    ctx.fillText('90° (&delta;)', width - margin.right - 20, height - margin.bottom + 15);
+    ctx.fillText('P (p.u.)', margin.left - 40, margin.top + 10);
+
+    // Curve 1: Uncompensated Base Curve
+    ctx.beginPath();
+    ctx.strokeStyle = '#64748b';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 2;
+
+    const maxP_base = (V1 * V2) / X_line;
+    const maxP_scale = Math.max(maxP_base * 1.8, 3.0); // Dynamic grid scale
+
+    for (let d = 0; d <= 90; d += 2) {
+      const rad = d * Math.PI / 180;
+      const p = (V1 * V2 / X_line) * Math.sin(rad);
+      const x = margin.left + (d / 90) * plotWidth;
+      const y = height - margin.bottom - (p / maxP_scale) * plotHeight;
+
+      if (d === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]); // Reset dash
+
+    // Curve 2: Compensated Operating Curve
+    if (mode !== 'none') {
+      ctx.beginPath();
+      ctx.strokeStyle = '#fb923c';
+      ctx.lineWidth = 3;
+
+      for (let d = 0; d <= 90; d += 2) {
+        const rad = d * Math.PI / 180;
+        let p = 0;
+
+        if (mode === 'tcsc') {
+          const kc = parseFloat(document.getElementById('ktcsc').value) / 100;
+          p = (V1 * V2 / (X_line * (1 - kc))) * Math.sin(rad);
+        } else if (mode === 'sssc') {
+          const Vq = parseFloat(document.getElementById('vsssc').value);
+          p = (V1 * V2 / X_line) * Math.sin(rad) + (V1 * Vq / X_line) * Math.cos(rad / 2);
+        } else if (mode === 'upfc') {
+          const Vse = parseFloat(document.getElementById('vse').value);
+          const thetaSe = parseFloat(document.getElementById('thetase').value) * Math.PI / 180;
+          p = (V1 * V2 / X_line) * Math.sin(rad) + (V1 * Vse / X_line) * Math.sin(thetaSe - rad);
+        }
+
+        const x = margin.left + (d / 90) * plotWidth;
+        const y = height - margin.bottom - (p / maxP_scale) * plotHeight;
+
+        if (d === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    // Operating Point Dot
+    const opX = margin.left + (currentDelta / 90) * plotWidth;
+    const opY = height - margin.bottom - (currentP / maxP_scale) * plotHeight;
+
+    ctx.fillStyle = '#4ade80';
+    ctx.beginPath();
+    ctx.arc(opX, opY, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // Animation Loop for Smooth Particle Motion
+  function animate() {
+    updateSim();
+    animationFrameId = requestAnimationFrame(animate);
+  }
+
+  // Window Resize Listener
+  window.addEventListener('resize', updateSim);
+
+  // Start Simulation
+  animate();
+</script>
+
+</body>
+<footer style="text-align: center;">
+    <p>© Rushabh D. Vanara | Department of Electrical Engineering, Government Polytechnic, Junagadh</p>
+</footer>
+</html>
