@@ -1,0 +1,3812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>FACTS Virtual Laboratory | Power Flow Control</title>
+
+<style>
+
+:root{
+  --navy:#08203a;
+  --blue:#1769d2;
+  --cyan:#00a7c7;
+  --green:#009b73;
+  --orange:#ed8b2f;
+  --red:#d64545;
+  --purple:#7048e8;
+  --ink:#17212f;
+  --muted:#667085;
+  --grid:#dbe4ef;
+  --bg:#f3f6fa;
+  --card:#ffffff;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--ink);
+  background:var(--bg);
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+header{
+  background:
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(0,167,199,.25),
+      transparent 30%
+    ),
+    linear-gradient(135deg,#06182d,#0d3c70);
+
+  color:white;
+  padding:18px 30px 30px;
+  border-bottom:5px solid var(--cyan);
+}
+
+.top{
+  max-width:1450px;
+  margin:auto;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.home{
+  color:white;
+  text-decoration:none;
+  border:1px solid rgba(255,255,255,.45);
+  padding:8px 15px;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+.header-content{
+  max-width:1450px;
+  margin:25px auto 0;
+}
+
+.eyebrow{
+  color:#76d9ee;
+  font-size:12px;
+  font-weight:bold;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+h1{
+  font-size:clamp(28px,4vw,46px);
+  margin:7px 0;
+}
+
+.subtitle{
+  max-width:950px;
+  color:#d8e7f5;
+}
+
+
+/* =====================================================
+   LAYOUT
+===================================================== */
+
+.container{
+  max-width:1450px;
+  margin:auto;
+  padding:22px;
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:350px 1fr;
+  gap:20px;
+}
+
+.card{
+  background:white;
+  border:1px solid #d9e2ec;
+  border-radius:15px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 10px 28px rgba(16,40,70,.08);
+}
+
+h2{
+  margin:0 0 15px;
+  color:var(--navy);
+  font-size:19px;
+}
+
+h3{
+  color:#284967;
+  font-size:14px;
+  margin-top:18px;
+}
+
+
+/* =====================================================
+   CONTROLS
+===================================================== */
+
+.control{
+  margin:15px 0;
+}
+
+.control label{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.control span{
+  color:var(--blue);
+}
+
+input[type=range]{
+  width:100%;
+  accent-color:var(--blue);
+}
+
+.mode{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+}
+
+button{
+  border:0;
+  border-radius:8px;
+  padding:10px 12px;
+  background:var(--blue);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  filter:brightness(.92);
+}
+
+.mode button{
+  background:#edf2f7;
+  color:#284967;
+}
+
+.mode button.active{
+  background:var(--blue);
+  color:white;
+}
+
+.secondary{
+  background:#e8eef5;
+  color:#193d61;
+}
+
+.buttons{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.status{
+  margin-top:15px;
+  padding:11px;
+  border-left:4px solid var(--green);
+  background:#edf9f5;
+  color:#08745a;
+  font-size:13px;
+  border-radius:6px;
+}
+
+
+/* =====================================================
+   METRICS
+===================================================== */
+
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+}
+
+.metric{
+  background:white;
+  border:1px solid #dbe3ed;
+  border-radius:12px;
+  padding:14px;
+}
+
+.metric-label{
+  color:#667085;
+  font-size:11px;
+  text-transform:uppercase;
+  font-weight:bold;
+}
+
+.metric-value{
+  font-size:24px;
+  font-weight:bold;
+  color:var(--navy);
+  margin-top:5px;
+}
+
+
+/* =====================================================
+   FIGURES
+===================================================== */
+
+.figure{
+  border:1px solid #dbe4ed;
+  border-radius:10px;
+  overflow:hidden;
+
+  background:
+    linear-gradient(#f4f8fc 1px,transparent 1px),
+    linear-gradient(90deg,#f4f8fc 1px,transparent 1px);
+
+  background-size:25px 25px;
+}
+
+svg{
+  display:block;
+  width:100%;
+  height:auto;
+}
+
+.visual-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+
+.chart{
+  height:320px;
+}
+
+canvas{
+  width:100%;
+  height:100%;
+}
+
+
+/* =====================================================
+   EQUATIONS
+===================================================== */
+
+.equation{
+  overflow-x:auto;
+  background:#f7f9fc;
+  border:1px solid #dce4ed;
+  padding:15px;
+  border-radius:9px;
+  margin:10px 0;
+}
+
+.explanation{
+  color:#52606f;
+  font-size:13px;
+  line-height:1.65;
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #e3e8ef;
+  text-align:center;
+}
+
+th{
+  background:#f3f6fa;
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:20px;
+  background:#e9f2ff;
+  color:var(--blue);
+  font-size:11px;
+  font-weight:bold;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer{
+  background:#071b32;
+  color:#dce8f5;
+  text-align:center;
+  padding:25px;
+  margin-top:10px;
+}
+
+footer strong{
+  color:white;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:1050px){
+
+  .layout{
+    grid-template-columns:1fr;
+  }
+
+  .metrics{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+}
+
+@media(max-width:700px){
+
+  .visual-grid{
+    grid-template-columns:1fr;
+  }
+
+  .metrics{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+@media(max-width:450px){
+
+  .metrics{
+    grid-template-columns:1fr;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header>
+
+<div class="top">
+
+<a class="home"
+   href="https://rushabhvanara.github.io"
+   target="_blank">
+  ⌂ Home
+</a>
+
+<span style="font-size:12px;color:#d5e8f7">
+  POWER SYSTEMS • VIRTUAL LABORATORY
+</span>
+
+</div>
+
+
+<div class="header-content">
+
+<div class="eyebrow">
+  Electrical Engineering Virtual Laboratory
+</div>
+
+<h1>
+  Power Flow Control Using FACTS Controllers
+</h1>
+
+<div class="subtitle">
+  Interactive steady-state simulation of TCSC, SSSC and UPFC
+  for controllable transmission-system power flow.
+</div>
+
+</div>
+
+</header>
+
+
+<main class="container">
+
+<div class="layout">
+
+
+<!-- =====================================================
+     LEFT CONTROL PANEL
+===================================================== -->
+
+<aside>
+
+<div class="card">
+
+<h2>Simulation Controls</h2>
+
+<h3>FACTS Controller</h3>
+
+<div class="mode">
+
+<button id="tButton"
+        onclick="setMode('TCSC')">
+  TCSC
+</button>
+
+<button id="sButton"
+        onclick="setMode('SSSC')">
+  SSSC
+</button>
+
+<button id="uButton"
+        onclick="setMode('UPFC')">
+  UPFC
+</button>
+
+</div>
+
+
+<div class="control">
+
+<label>
+  Sending voltage V₁
+  <span id="v1Text">1.00 pu</span>
+</label>
+
+<input id="v1"
+       type="range"
+       min=".8"
+       max="1.2"
+       step=".01"
+       value="1">
+
+</div>
+
+
+<div class="control">
+
+<label>
+  Receiving voltage V₂
+  <span id="v2Text">1.00 pu</span>
+</label>
+
+<input id="v2"
+       type="range"
+       min=".8"
+       max="1.2"
+       step=".01"
+       value="1">
+
+</div>
+
+
+<div class="control">
+
+<label>
+  Power angle δ
+  <span id="deltaText">30°</span>
+</label>
+
+<input id="delta"
+       type="range"
+       min="0"
+       max="75"
+       step=".5"
+       value="30">
+
+</div>
+
+
+<div class="control">
+
+<label>
+  Line reactance X<sub>L</sub>
+  <span id="xlText">0.40 pu</span>
+</label>
+
+<input id="xl"
+       type="range"
+       min=".1"
+       max=".9"
+       step=".01"
+       value=".4">
+
+</div>
+
+
+<!-- TCSC -->
+
+<div id="tcscPanel">
+
+<h3>TCSC Series Compensation</h3>
+
+<div class="control">
+
+<label>
+  Compensation k<sub>c</sub>
+  <span id="kcText">30%</span>
+</label>
+
+<input id="kc"
+       type="range"
+       min="-50"
+       max="70"
+       step="1"
+       value="30">
+
+</div>
+
+</div>
+
+
+<!-- SSSC -->
+
+<div id="ssscPanel"
+     style="display:none">
+
+<h3>SSSC Series Voltage</h3>
+
+<div class="control">
+
+<label>
+  Injected V<sub>q</sub>
+  <span id="vqText">0.10 pu</span>
+</label>
+
+<input id="vq"
+       type="range"
+       min="-0.3"
+       max=".3"
+       step=".01"
+       value=".1">
+
+</div>
+
+</div>
+
+
+<!-- UPFC -->
+
+<div id="upfcPanel"
+     style="display:none">
+
+<h3>UPFC Series Converter</h3>
+
+<div class="control">
+
+<label>
+  V<sub>se</sub>
+  <span id="vseText">0.10 pu</span>
+</label>
+
+<input id="vse"
+       type="range"
+       min="0"
+       max=".4"
+       step=".01"
+       value=".1">
+
+</div>
+
+
+<div class="control">
+
+<label>
+  θ<sub>se</sub>
+  <span id="thetaText">90°</span>
+</label>
+
+<input id="theta"
+       type="range"
+       min="-180"
+       max="180"
+       step="1"
+       value="90">
+
+</div>
+
+
+<div class="control">
+
+<label>
+  Shunt V<sub>sh</sub>
+  <span id="vshText">1.00 pu</span>
+</label>
+
+<input id="vsh"
+       type="range"
+       min=".8"
+       max="1.2"
+       step=".01"
+       value="1">
+
+</div>
+
+</div>
+
+
+<div class="buttons">
+
+<button onclick="recommended()">
+  Recommended Case
+</button>
+
+<button class="secondary"
+        onclick="resetLab()">
+  Reset
+</button>
+
+</div>
+
+
+<div class="status"
+     id="status">
+  TCSC active: series compensation reduces the effective line reactance.
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Learning Objectives</h2>
+
+<div class="explanation">
+
+- Understand the steady-state power-angle relationship.<br>
+- Observe how series compensation changes power transfer.<br>
+- Understand the operating principle of TCSC.<br>
+- Understand voltage-source injection by SSSC.<br>
+- Understand simultaneous series and shunt control by UPFC.<br>
+- Compare active and reactive power regulation.
+
+</div>
+
+</div>
+
+</aside>
+
+
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
+
+<section>
+
+
+<!-- =====================================================
+     METRICS
+===================================================== -->
+
+<div class="metrics">
+
+<div class="metric">
+
+<div class="metric-label">
+  Active Power
+</div>
+
+<div class="metric-value"
+     id="P">
+  —
+</div>
+
+<small>pu</small>
+
+</div>
+
+
+<div class="metric">
+
+<div class="metric-label">
+  Reactive Power
+</div>
+
+<div class="metric-value"
+     id="Q">
+  —
+</div>
+
+<small>pu</small>
+
+</div>
+
+
+<div class="metric">
+
+<div class="metric-label">
+  Current
+</div>
+
+<div class="metric-value"
+     id="I">
+  —
+</div>
+
+<small>pu</small>
+
+</div>
+
+
+<div class="metric">
+
+<div class="metric-label">
+  Effective X
+</div>
+
+<div class="metric-value"
+     id="Xeq">
+  —
+</div>
+
+<small>pu</small>
+
+</div>
+
+
+<div class="metric">
+
+<div class="metric-label">
+  Pmax
+</div>
+
+<div class="metric-value"
+     id="Pmax">
+  —
+</div>
+
+<small>pu</small>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     TRANSMISSION SYSTEM
+===================================================== -->
+
+<div class="card">
+
+<h2>
+  Transmission System and FACTS Controller
+
+  <span class="badge"
+        id="modeBadge">
+    TCSC
+  </span>
+</h2>
+
+
+<div class="figure">
+
+<svg id="systemSVG"
+     viewBox="0 0 1400 620"
+     xmlns="http://www.w3.org/2000/svg">
+
+<defs>
+
+<marker id="arrowBlue"
+        markerWidth="12"
+        markerHeight="12"
+        refX="10"
+        refY="5"
+        orient="auto">
+
+<path d="M0,0 L10,5 L0,10 Z"
+      fill="#1769d2"/>
+
+</marker>
+
+
+<marker id="arrowGreen"
+        markerWidth="12"
+        markerHeight="12"
+        refX="10"
+        refY="5"
+        orient="auto">
+
+<path d="M0,0 L10,5 L0,10 Z"
+      fill="#009b73"/>
+
+</marker>
+
+
+<marker id="arrowOrange"
+        markerWidth="12"
+        markerHeight="12"
+        refX="10"
+        refY="5"
+        orient="auto">
+
+<path d="M0,0 L10,5 L0,10 Z"
+      fill="#ed8b2f"/>
+
+</marker>
+
+
+<filter id="shadow">
+
+<feDropShadow
+dx="0"
+dy="4"
+stdDeviation="5"
+flood-opacity=".16"/>
+
+</filter>
+
+
+<linearGradient id="busGradient"
+                x1="0"
+                x2="1">
+
+<stop offset="0"
+      stop-color="#17385f"/>
+
+<stop offset="1"
+      stop-color="#1769d2"/>
+
+</linearGradient>
+
+</defs>
+
+
+<!-- TITLE -->
+
+<text x="700"
+      y="35"
+      text-anchor="middle"
+      font-size="21"
+      font-weight="bold"
+      fill="#08203a">
+
+Two-Bus Transmission Network with FACTS Power-Flow Controller
+
+</text>
+
+
+<!-- GENERATOR -->
+
+<circle cx="90"
+        cy="310"
+        r="65"
+        fill="#eef6ff"
+        stroke="#1769d2"
+        stroke-width="4"
+        filter="url(#shadow)"/>
+
+<path d="M55 310
+         q17 -35 34 0
+         t34 0"
+      fill="none"
+      stroke="#1769d2"
+      stroke-width="5"/>
+
+<text x="90"
+      y="395"
+      text-anchor="middle"
+      font-size="15"
+      font-weight="bold">
+  GENERATOR
+</text>
+
+
+<!-- TRANSFORMER -->
+
+<line x1="155"
+      y1="310"
+      x2="205"
+      y2="310"
+      stroke="#465b72"
+      stroke-width="5"/>
+
+<circle cx="225"
+        cy="292"
+        r="22"
+        fill="none"
+        stroke="#465b72"
+        stroke-width="3"/>
+
+<circle cx="225"
+        cy="328"
+        r="22"
+        fill="none"
+        stroke="#465b72"
+        stroke-width="3"/>
+
+<line x1="247"
+      y1="310"
+      x2="290"
+      y2="310"
+      stroke="#465b72"
+      stroke-width="5"/>
+
+<text x="225"
+      y="380"
+      text-anchor="middle"
+      font-size="13">
+  Transformer
+</text>
+
+
+<!-- BUS 1 -->
+
+<rect x="290"
+      y="190"
+      width="20"
+      height="240"
+      rx="4"
+      fill="url(#busGradient)"/>
+
+<text x="300"
+      y="465"
+      text-anchor="middle"
+      font-weight="bold"
+      font-size="16">
+  BUS 1
+</text>
+
+<text x="300"
+      y="485"
+      text-anchor="middle"
+      font-size="13">
+  V₁∠0°
+</text>
+
+
+<!-- TRANSMISSION LINE -->
+
+<line x1="310"
+      y1="255"
+      x2="1090"
+      y2="255"
+      stroke="#52657d"
+      stroke-width="6"/>
+
+<line x1="310"
+      y1="365"
+      x2="1090"
+      y2="365"
+      stroke="#52657d"
+      stroke-width="6"/>
+
+
+<!-- LINE STRUCTURES -->
+
+<g stroke="#7d8fa3"
+   stroke-width="2"
+   fill="none">
+
+<path d="M390 245 v-30"/>
+<path d="M380 215 h20"/>
+<path d="M375 205 h30"/>
+
+<path d="M1010 245 v-30"/>
+<path d="M1000 215 h20"/>
+<path d="M995 205 h30"/>
+
+</g>
+
+
+<!-- POWER FLOW -->
+
+<line x1="340"
+      y1="225"
+      x2="1030"
+      y2="225"
+      stroke="#1769d2"
+      stroke-width="4"
+      marker-end="url(#arrowBlue)"/>
+
+<text x="690"
+      y="215"
+      text-anchor="middle"
+      fill="#1769d2"
+      font-size="15"
+      font-weight="bold">
+  P, Q FLOW →
+</text>
+
+
+<!-- FACTS BOX -->
+
+<rect id="factsBox"
+      x="600"
+      y="275"
+      width="230"
+      height="150"
+      rx="16"
+      fill="#f5f9ff"
+      stroke="#1769d2"
+      stroke-width="3"
+      filter="url(#shadow)"/>
+
+
+<text id="svgFactsTitle"
+      x="715"
+      y="300"
+      text-anchor="middle"
+      font-size="19"
+      font-weight="bold"
+      fill="#1769d2">
+  TCSC
+</text>
+
+
+<!-- TCSC SYMBOL -->
+
+<g id="tcscSymbol">
+
+<line x1="655"
+      y1="330"
+      x2="655"
+      y2="375"
+      stroke="#d64545"
+      stroke-width="5"/>
+
+<line x1="680"
+      y1="330"
+      x2="680"
+      y2="375"
+      stroke="#d64545"
+      stroke-width="5"/>
+
+<line x1="655"
+      y1="352"
+      x2="680"
+      y2="352"
+      stroke="#d64545"
+      stroke-width="2"/>
+
+<path d="M710 330
+         q10 20 20 0
+         q10 20 20 0
+         q10 20 20 0"
+      fill="none"
+      stroke="#7048e8"
+      stroke-width="4"/>
+
+<path d="M765 330
+         L765 375
+         L800 352
+         Z"
+      fill="#00a878"/>
+
+<text x="667"
+      y="395"
+      text-anchor="middle"
+      font-size="11">
+  C
+</text>
+
+<text x="742"
+      y="395"
+      text-anchor="middle"
+      font-size="11">
+  L
+</text>
+
+</g>
+
+
+<!-- SSSC SYMBOL -->
+
+<g id="ssscSymbol"
+   style="display:none">
+
+<rect x="650"
+      y="325"
+      width="130"
+      height="55"
+      rx="8"
+      fill="#eaf9f5"
+      stroke="#009b73"
+      stroke-width="3"/>
+
+<text x="715"
+      y="350"
+      text-anchor="middle"
+      font-size="13"
+      font-weight="bold"
+      fill="#009b73">
+  VSC
+</text>
+
+<line x1="715"
+      y1="380"
+      x2="715"
+      y2="405"
+      stroke="#009b73"
+      stroke-width="4"
+      marker-end="url(#arrowGreen)"/>
+
+<text x="715"
+      y="420"
+      text-anchor="middle"
+      font-size="11">
+  Vse ⟂ I
+</text>
+
+</g>
+
+
+<!-- UPFC SYMBOL -->
+
+<g id="upfcSymbol"
+   style="display:none">
+
+<rect x="630"
+      y="315"
+      width="80"
+      height="60"
+      rx="8"
+      fill="#f2edff"
+      stroke="#7048e8"
+      stroke-width="3"/>
+
+<text x="670"
+      y="350"
+      text-anchor="middle"
+      font-size="12"
+      font-weight="bold">
+  SERIES
+</text>
+
+<rect x="735"
+      y="315"
+      width="80"
+      height="60"
+      rx="8"
+      fill="#f2edff"
+      stroke="#7048e8"
+      stroke-width="3"/>
+
+<text x="775"
+      y="350"
+      text-anchor="middle"
+      font-size="12"
+      font-weight="bold">
+  SHUNT
+</text>
+
+<line x1="710"
+      y1="345"
+      x2="735"
+      y2="345"
+      stroke="#7048e8"
+      stroke-width="4"
+      marker-end="url(#arrowGreen)"/>
+
+<line x1="775"
+      y1="375"
+      x2="775"
+      y2="410"
+      stroke="#7048e8"
+      stroke-width="4"
+      marker-end="url(#arrowGreen)"/>
+
+</g>
+
+
+<text id="svgFactsDescription"
+      x="715"
+      y="450"
+      text-anchor="middle"
+      font-size="12"
+      fill="#52657d">
+  Variable series reactance
+</text>
+
+
+<!-- BUS 2 -->
+
+<rect x="1090"
+      y="190"
+      width="20"
+      height="240"
+      rx="4"
+      fill="url(#busGradient)"/>
+
+<text x="1100"
+      y="465"
+      text-anchor="middle"
+      font-weight="bold"
+      font-size="16">
+  BUS 2
+</text>
+
+<text x="1100"
+      y="485"
+      text-anchor="middle"
+      font-size="13">
+  V₂∠−δ
+</text>
+
+
+<!-- LOAD -->
+
+<path d="M1170 255
+         L1220 255
+         L1195 290
+         L1215 290
+         L1170 355
+         L1180 315
+         L1155 315
+         Z"
+      fill="#ed8b2f"
+      stroke="#a95f18"
+      stroke-width="2"/>
+
+<text x="1190"
+      y="395"
+      text-anchor="middle"
+      font-weight="bold"
+      font-size="15">
+  LOAD
+</text>
+
+
+<!-- VOLTAGE PHASORS -->
+
+<g transform="translate(390 530)">
+
+<line x1="0"
+      y1="0"
+      x2="140"
+      y2="0"
+      stroke="#1769d2"
+      stroke-width="5"
+      marker-end="url(#arrowBlue)"/>
+
+<text x="70"
+      y="25"
+      text-anchor="middle"
+      fill="#1769d2"
+      font-weight="bold">
+  V₁ ∠ 0°
+</text>
+
+</g>
+
+
+<g id="systemV2Phasor"
+   transform="translate(850 530)">
+
+<line x1="0"
+      y1="0"
+      x2="125"
+      y2="-70"
+      stroke="#009b73"
+      stroke-width="5"
+      marker-end="url(#arrowGreen)"/>
+
+<text x="85"
+      y="-78"
+      fill="#009b73"
+      font-weight="bold">
+  V₂ ∠−δ
+</text>
+
+</g>
+
+
+<!-- CURRENT -->
+
+<line x1="430"
+      y1="155"
+      x2="850"
+      y2="155"
+      stroke="#1769d2"
+      stroke-width="4"
+      marker-end="url(#arrowBlue)"/>
+
+<text x="640"
+      y="145"
+      text-anchor="middle"
+      fill="#1769d2"
+      font-weight="bold"
+      font-size="13">
+  I
+</text>
+
+
+<!-- CONTROLLER LABEL -->
+
+<text id="controllerPrinciple"
+      x="700"
+      y="580"
+      text-anchor="middle"
+      font-size="14"
+      font-weight="bold"
+      fill="#284967">
+
+  TCSC: Xeq = XL(1 − kc)
+
+</text>
+
+</svg>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     CORRECTED PHASOR DIAGRAM
+===================================================== -->
+
+<div class="card">
+
+<h2>
+
+FACTS Operating Principle — Phasor Diagram
+
+<span class="badge"
+      id="phasorBadge">
+  TCSC
+</span>
+
+</h2>
+
+
+<div class="figure">
+
+<svg id="phasorSVG"
+     viewBox="0 0 1200 650"
+     xmlns="http://www.w3.org/2000/svg">
+
+
+<defs>
+
+<marker id="pBlue"
+        markerWidth="12"
+        markerHeight="12"
+        refX="10"
+        refY="5"
+        orient="auto">
+
+<path d="M0 0 L10 5 L0 10 Z"
+      fill="#1769d2"/>
+
+</marker>
+
+
+<marker id="pGreen"
+        markerWidth="12"
+        markerHeight="12"
+        refX="10"
+        refY="5"
+        orient="auto">
+
+<path d="M0 0 L10 5 L0 10 Z"
+      fill="#009b73"/>
+
+</marker>
+
+
+<marker id="pOrange"
+        markerWidth="12"
+        markerHeight="12"
+        refX="10"
+        refY="5"
+        orient="auto">
+
+<path d="M0 0 L10 5 L0 10 Z"
+      fill="#ed8b2f"/>
+
+</marker>
+
+
+<marker id="pPurple"
+        markerWidth="12"
+        markerHeight="12"
+        refX="10"
+        refY="5"
+        orient="auto">
+
+<path d="M0 0 L10 5 L0 10 Z"
+      fill="#7048e8"/>
+
+</marker>
+
+</defs>
+
+
+<!-- =================================================
+     TITLE
+================================================= -->
+
+<text x="600"
+      y="35"
+      text-anchor="middle"
+      font-size="21"
+      font-weight="bold"
+      fill="#08203a">
+
+FACTS Operating Principle — Phasor Diagram
+
+</text>
+
+
+<!-- =================================================
+     AXES
+================================================= -->
+
+<line x1="100"
+      y1="520"
+      x2="1100"
+      y2="520"
+      stroke="#8b9bae"
+      stroke-width="2"/>
+
+<line x1="600"
+      y1="80"
+      x2="600"
+      y2="570"
+      stroke="#8b9bae"
+      stroke-width="2"/>
+
+
+<text x="1110"
+      y="540"
+      font-size="13"
+      fill="#52657d">
+
+Real axis
+
+</text>
+
+
+<text x="615"
+      y="75"
+      font-size="13"
+      fill="#52657d">
+
+Imaginary axis
+
+</text>
+
+
+<!-- =================================================
+     GRID
+================================================= -->
+
+<g stroke="#e3e9f0"
+   stroke-width="1">
+
+<line x1="200"
+      y1="420"
+      x2="1000"
+      y2="420"/>
+
+<line x1="200"
+      y1="320"
+      x2="1000"
+      y2="320"/>
+
+<line x1="200"
+      y1="220"
+      x2="1000"
+      y2="220"/>
+
+
+<line x1="300"
+      y1="120"
+      x2="300"
+      y2="520"/>
+
+<line x1="400"
+      y1="120"
+      x2="400"
+      y2="520"/>
+
+<line x1="500"
+      y1="120"
+      x2="500"
+      y2="520"/>
+
+<line x1="700"
+      y1="120"
+      x2="700"
+      y2="520"/>
+
+<line x1="800"
+      y1="120"
+      x2="800"
+      y2="520"/>
+
+<line x1="900"
+      y1="120"
+      x2="900"
+      y2="520"/>
+
+</g>
+
+
+<!-- =================================================
+     V1
+================================================= -->
+
+<line id="phasorV1"
+      x1="600"
+      y1="520"
+      x2="900"
+      y2="520"
+      stroke="#1769d2"
+      stroke-width="7"
+      marker-end="url(#pBlue)"/>
+
+
+<text x="915"
+      y="515"
+      fill="#1769d2"
+      font-size="17"
+      font-weight="bold">
+
+V₁
+
+</text>
+
+
+<!-- =================================================
+     V2
+================================================= -->
+
+<line id="phasorV2"
+      x1="600"
+      y1="520"
+      x2="840"
+      y2="380"
+      stroke="#009b73"
+      stroke-width="7"
+      marker-end="url(#pGreen)"/>
+
+
+<text id="V2Label"
+      x="850"
+      y="370"
+      fill="#009b73"
+      font-size="17"
+      font-weight="bold">
+
+V₂
+
+</text>
+
+
+<!-- =================================================
+     CURRENT
+================================================= -->
+
+<line id="phasorI"
+      x1="600"
+      y1="520"
+      x2="760"
+      y2="440"
+      stroke="#7048e8"
+      stroke-width="5"
+      stroke-dasharray="10 6"
+      marker-end="url(#pPurple)"/>
+
+
+<text x="770"
+      y="435"
+      fill="#7048e8"
+      font-size="16"
+      font-weight="bold">
+
+I
+
+</text>
+
+
+<!-- =================================================
+     TCSC PHASORS
+================================================= -->
+
+<g id="tcscPhasors">
+
+
+<!-- Capacitor voltage -->
+
+<line id="tcscVc"
+      x1="600"
+      y1="520"
+      x2="600"
+      y2="395"
+      stroke="#d64545"
+      stroke-width="6"
+      marker-end="url(#pOrange)"/>
+
+
+<text x="615"
+      y="390"
+      fill="#d64545"
+      font-size="16"
+      font-weight="bold">
+
+V<tspan baseline-shift="sub"
+        font-size="11">
+C
+</tspan>
+
+</text>
+
+
+<!-- Inductor voltage -->
+
+<line id="tcscVl"
+      x1="600"
+      y1="520"
+      x2="690"
+      y2="475"
+      stroke="#7048e8"
+      stroke-width="5"
+      marker-end="url(#pPurple)"/>
+
+
+<text x="700"
+      y="470"
+      fill="#7048e8"
+      font-size="16"
+      font-weight="bold">
+
+V<tspan baseline-shift="sub"
+        font-size="11">
+L
+</tspan>
+
+</text>
+
+
+<!-- TCSC INFORMATION BOX -->
+
+<rect x="805"
+      y="105"
+      width="315"
+      height="125"
+      rx="10"
+      fill="#ffffff"
+      stroke="#d7e0e9"/>
+
+
+<text x="825"
+      y="132"
+      fill="#1769d2"
+      font-size="18"
+      font-weight="bold">
+
+TCSC
+
+</text>
+
+
+<text x="825"
+      y="158"
+      font-size="13"
+      fill="#344054">
+
+Series capacitor compensates
+
+</text>
+
+
+<text x="825"
+      y="178"
+      font-size="13"
+      fill="#344054">
+
+transmission-line reactance.
+
+</text>
+
+
+<text x="825"
+      y="205"
+      font-size="14"
+      fill="#344054">
+
+X<tspan baseline-shift="sub"
+      font-size="10">
+eq
+</tspan>
+
+=
+
+X<tspan baseline-shift="sub"
+      font-size="10">
+L
+</tspan>
+
+(1 − k<tspan baseline-shift="sub"
+         font-size="10">
+c
+</tspan>)
+
+</text>
+
+</g>
+
+
+<!-- =================================================
+     SSSC PHASORS
+================================================= -->
+
+<g id="ssscPhasors"
+   style="display:none">
+
+
+<!-- Injected series voltage -->
+
+<line id="ssscVse"
+      x1="600"
+      y1="520"
+      x2="600"
+      y2="350"
+      stroke="#ed8b2f"
+      stroke-width="7"
+      marker-end="url(#pOrange)"/>
+
+
+<text x="615"
+      y="345"
+      fill="#ed8b2f"
+      font-size="17"
+      font-weight="bold">
+
+V<tspan baseline-shift="sub"
+        font-size="11">
+se
+</tspan>
+
+</text>
+
+
+<!-- 90 degree indication -->
+
+<path d="M600 405
+         A115 115 0 0 1 650 430"
+      fill="none"
+      stroke="#ed8b2f"
+      stroke-width="3"/>
+
+
+<text x="635"
+      y="410"
+      fill="#ed8b2f"
+      font-size="15"
+      font-weight="bold">
+
+90°
+
+</text>
+
+
+<!-- SSSC INFORMATION BOX -->
+
+<rect x="805"
+      y="105"
+      width="315"
+      height="125"
+      rx="10"
+      fill="#ffffff"
+      stroke="#d7e0e9"/>
+
+
+<text x="825"
+      y="132"
+      fill="#009b73"
+      font-size="18"
+      font-weight="bold">
+
+SSSC
+
+</text>
+
+
+<text x="825"
+      y="158"
+      font-size="13"
+      fill="#344054">
+
+Voltage-source converter injects
+
+</text>
+
+
+<text x="825"
+      y="178"
+      font-size="13"
+      fill="#344054">
+
+a controllable series voltage.
+
+</text>
+
+
+<text x="825"
+      y="205"
+      font-size="14"
+      fill="#344054">
+
+V<tspan baseline-shift="sub"
+        font-size="10">
+se
+</tspan>
+
+is controlled relative to I.
+
+</text>
+
+</g>
+
+
+<!-- =================================================
+     UPFC PHASORS
+================================================= -->
+
+<g id="upfcPhasors"
+   style="display:none">
+
+
+<!-- Series voltage -->
+
+<line id="upfcVse"
+      x1="600"
+      y1="520"
+      x2="730"
+      y2="350"
+      stroke="#ed8b2f"
+      stroke-width="7"
+      marker-end="url(#pOrange)"/>
+
+
+<text x="742"
+      y="345"
+      fill="#ed8b2f"
+      font-size="17"
+      font-weight="bold">
+
+V<tspan baseline-shift="sub"
+        font-size="11">
+se
+</tspan>
+
+</text>
+
+
+<!-- Shunt voltage -->
+
+<line id="upfcVsh"
+      x1="600"
+      y1="520"
+      x2="520"
+      y2="360"
+      stroke="#7048e8"
+      stroke-width="7"
+      marker-end="url(#pPurple)"/>
+
+
+<text x="465"
+      y="350"
+      fill="#7048e8"
+      font-size="17"
+      font-weight="bold">
+
+V<tspan baseline-shift="sub"
+        font-size="11">
+sh
+</tspan>
+
+</text>
+
+
+<!-- UPFC INFORMATION BOX -->
+
+<rect x="805"
+      y="105"
+      width="315"
+      height="145"
+      rx="10"
+      fill="#ffffff"
+      stroke="#d7e0e9"/>
+
+
+<text x="825"
+      y="132"
+      fill="#7048e8"
+      font-size="18"
+      font-weight="bold">
+
+UPFC
+
+</text>
+
+
+<text x="825"
+      y="158"
+      font-size="13"
+      fill="#344054">
+
+Simultaneous series and shunt
+
+</text>
+
+
+<text x="825"
+      y="178"
+      font-size="13"
+      fill="#344054">
+
+voltage control.
+
+</text>
+
+
+<text x="825"
+      y="207"
+      font-size="13"
+      fill="#344054">
+
+V<tspan baseline-shift="sub"
+        font-size="9">
+se
+</tspan>
+
+controls P and Q.
+
+</text>
+
+
+<text x="825"
+      y="227"
+      font-size="13"
+      fill="#344054">
+
+V<tspan baseline-shift="sub"
+        font-size="9">
+sh
+</tspan>
+
+supports bus voltage.
+
+</text>
+
+</g>
+
+
+<!-- =================================================
+     DELTA
+================================================= -->
+
+<path id="deltaArc"
+      d="M735 520
+         A135 135 0 0 0 700 440"
+      fill="none"
+      stroke="#d64545"
+      stroke-width="3"/>
+
+
+<text id="deltaSVG"
+      x="735"
+      y="475"
+      fill="#d64545"
+      font-size="15"
+      font-weight="bold">
+
+δ = 30°
+
+</text>
+
+
+<!-- =================================================
+     LEGEND
+================================================= -->
+
+<g transform="translate(120 100)">
+
+
+<rect x="0"
+      y="0"
+      width="235"
+      height="125"
+      rx="10"
+      fill="#ffffff"
+      stroke="#d7e0e9"/>
+
+
+<text x="18"
+      y="23"
+      font-size="13"
+      font-weight="bold"
+      fill="#08203a">
+
+Phasor Legend
+
+</text>
+
+
+<line x1="20"
+      y1="48"
+      x2="65"
+      y2="48"
+      stroke="#1769d2"
+      stroke-width="5"/>
+
+
+<text x="78"
+      y="53"
+      font-size="12"
+      fill="#344054">
+
+Bus voltage
+
+</text>
+
+
+<line x1="20"
+      y1="75"
+      x2="65"
+      y2="75"
+      stroke="#009b73"
+      stroke-width="5"/>
+
+
+<text x="78"
+      y="80"
+      font-size="12"
+      fill="#344054">
+
+Controlled voltage
+
+</text>
+
+
+<line x1="20"
+      y1="102"
+      x2="65"
+      y2="102"
+      stroke="#ed8b2f"
+      stroke-width="5"/>
+
+
+<text x="78"
+      y="107"
+      font-size="12"
+      fill="#344054">
+
+FACTS injected voltage
+
+</text>
+
+</g>
+
+
+</svg>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     MATHEMATICAL MODEL
+===================================================== -->
+
+<div class="card">
+
+<h2>Mathematical Model</h2>
+
+
+<div class="equation">
+
+<math display="block">
+
+<mrow>
+
+<mi>P</mi>
+
+<mo>=</mo>
+
+<mfrac>
+
+<mrow>
+
+<msub>
+<mi>V</mi>
+<mn>1</mn>
+</msub>
+
+<msub>
+<mi>V</mi>
+<mn>2</mn>
+</msub>
+
+</mrow>
+
+<msub>
+<mi>X</mi>
+<mi>eq</mi>
+</msub>
+
+</mfrac>
+
+<mi>sin</mi>
+
+<mo>(</mo>
+
+<mi>δ</mi>
+
+<mo>)</mo>
+
+</mrow>
+
+</math>
+
+</div>
+
+
+<div class="equation">
+
+<math display="block">
+
+<mrow>
+
+<msub>
+<mi>X</mi>
+<mi>eq</mi>
+</msub>
+
+<mo>=</mo>
+
+<msub>
+<mi>X</mi>
+<mi>L</mi>
+</msub>
+
+<mo>(</mo>
+
+<mn>1</mn>
+
+<mo>−</mo>
+
+<msub>
+<mi>k</mi>
+<mi>c</mi>
+</msub>
+
+<mo>)</mo>
+
+</mrow>
+
+</math>
+
+</div>
+
+
+<div class="equation">
+
+<math display="block">
+
+<mrow>
+
+<mi>Q</mi>
+
+<mo>=</mo>
+
+<mfrac>
+
+<mrow>
+
+<msubsup>
+<mi>V</mi>
+<mn>1</mn>
+<mn>2</mn>
+</msubsup>
+
+<mo>−</mo>
+
+<msub>
+<mi>V</mi>
+<mn>1</mn>
+</msub>
+
+<msub>
+<mi>V</mi>
+<mn>2</mn>
+</msub>
+
+<mi>cos</mi>
+
+<mo>(</mo>
+<mi>δ</mi>
+<mo>)</mo>
+
+</mrow>
+
+<msub>
+<mi>X</mi>
+<mi>eq</mi>
+</msub>
+
+</mfrac>
+
+</mrow>
+
+</math>
+
+</div>
+
+
+<div class="explanation"
+     id="calculation">
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     GRAPHS
+===================================================== -->
+
+<div class="visual-grid">
+
+
+<div class="card">
+
+<h2>P − δ Power Angle Curve</h2>
+
+<div class="chart">
+
+<canvas id="pChart"></canvas>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Q − δ Reactive Power Curve</h2>
+
+<div class="chart">
+
+<canvas id="qChart"></canvas>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>FACTS Controller Comparison</h2>
+
+<div class="chart">
+
+<canvas id="compareChart"></canvas>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Voltage Profile</h2>
+
+<div class="chart">
+
+<canvas id="voltageChart"></canvas>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     TABLE
+===================================================== -->
+
+<div class="card">
+
+<h2>Numerical Comparison</h2>
+
+<div style="overflow:auto">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Controller</th>
+<th>Xeq (pu)</th>
+<th>P (pu)</th>
+<th>Q (pu)</th>
+<th>I (pu)</th>
+<th>Operating principle</th>
+
+</tr>
+
+</thead>
+
+<tbody id="comparisonTable">
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     PROCEDURE
+===================================================== -->
+
+<div class="card">
+
+<h2>Virtual Laboratory Procedure</h2>
+
+<div class="explanation">
+
+<ol>
+
+<li>
+Select TCSC, SSSC or UPFC.
+</li>
+
+<li>
+Set V₁, V₂, X<sub>L</sub> and transmission power angle δ.
+</li>
+
+<li>
+For TCSC, vary the compensation factor k<sub>c</sub>.
+</li>
+
+<li>
+For SSSC, vary the injected series voltage.
+</li>
+
+<li>
+For UPFC, vary V<sub>se</sub>, θ<sub>se</sub> and V<sub>sh</sub>.
+</li>
+
+<li>
+Observe the changing phasor relationships.
+</li>
+
+<li>
+Observe P, Q, current and effective reactance.
+</li>
+
+<li>
+Compare the P−δ characteristics of the three FACTS controllers.
+</li>
+
+</ol>
+
+</div>
+
+</div>
+
+
+</section>
+
+</div>
+<div style="text-align: center;">
+<section class="subtle" style="margin-top:16px">
+
+<h3>
+   <a href="https://rushabhvanara.github.io/psom8/index2.html" target="_blank" style="text-decoration: none;">
+         Go to altenerate simple version 
+      </a>
+</h3>
+</div>
+</main>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer>
+
+Made with ❤️ by
+<strong>Rushabh Vanara</strong>
+
+<br>
+
+Electrical engineering department,
+Government Polytechnic Junagadh
+
+</footer>
+
+
+<script>
+
+
+/* =====================================================
+   FACTS SIMULATION ENGINE
+===================================================== */
+
+let mode="TCSC";
+
+
+const $ = id =>
+  document.getElementById(id);
+
+
+function rad(x){
+
+  return x*Math.PI/180;
+
+}
+
+
+function calculate(controller,deltaOverride=null){
+
+  const V1=+$("v1").value;
+  const V2=+$("v2").value;
+  const XL=+$("xl").value;
+
+  const delta=
+    deltaOverride===null
+    ? +$("delta").value
+    : deltaOverride;
+
+
+  let Xeq=XL;
+  let Veff=V2;
+
+
+  /* ================= TCSC ================= */
+
+  if(controller==="TCSC"){
+
+    const kc=
+      +$("kc").value/100;
+
+    Xeq=
+      XL*(1-kc);
+
+  }
+
+
+  /* ================= SSSC ================= */
+
+  if(controller==="SSSC"){
+
+    const Vq=
+      +$("vq").value;
+
+    Xeq=
+      XL/
+      (1+Vq/Math.max(V2,.01));
+
+  }
+
+
+  /* ================= UPFC ================= */
+
+  if(controller==="UPFC"){
+
+    const Vse=
+      +$("vse").value;
+
+    const theta=
+      rad(+$("theta").value);
+
+    const Vsh=
+      +$("vsh").value;
+
+
+    const Vreal=
+      Vse*Math.cos(theta);
+
+    const Vimag=
+      Vse*Math.sin(theta);
+
+
+    Veff=
+      Math.sqrt(
+        Math.pow(V2+Vreal,2)
+        +
+        Math.pow(Vimag,2)
+      );
+
+
+    Xeq=
+      XL/
+      (Vsh/Math.max(V2,.01));
+
+  }
+
+
+  Xeq=
+    Math.max(.02,Xeq);
+
+
+  const d=
+    rad(delta);
+
+
+  const P=
+    V1*Veff/Xeq*
+    Math.sin(d);
+
+
+  const Q=
+    (
+      V1*V1-
+      V1*Veff*Math.cos(d)
+    )/Xeq;
+
+
+  const I=
+    Math.sqrt(P*P+Q*Q)/
+    Math.max(V1,.01);
+
+
+  const Pmax=
+    V1*Veff/Xeq;
+
+
+  return{
+    V1,
+    V2,
+    Veff,
+    XL,
+    Xeq,
+    delta,
+    P,
+    Q,
+    I,
+    Pmax
+  };
+
+}
+
+
+/* =====================================================
+   MODE SELECTION
+===================================================== */
+
+function setMode(m){
+
+  mode=m;
+
+
+  $("tButton")
+    .classList
+    .toggle("active",m==="TCSC");
+
+
+  $("sButton")
+    .classList
+    .toggle("active",m==="SSSC");
+
+
+  $("uButton")
+    .classList
+    .toggle("active",m==="UPFC");
+
+
+  $("tcscPanel").style.display=
+    m==="TCSC"
+    ?"block"
+    :"none";
+
+
+  $("ssscPanel").style.display=
+    m==="SSSC"
+    ?"block"
+    :"none";
+
+
+  $("upfcPanel").style.display=
+    m==="UPFC"
+    ?"block"
+    :"none";
+
+
+  $("modeBadge").textContent=m;
+
+  $("phasorBadge").textContent=m;
+
+  $("svgFactsTitle").textContent=m;
+
+
+  $("tcscSymbol").style.display=
+    m==="TCSC"
+    ?"block"
+    :"none";
+
+
+  $("ssscSymbol").style.display=
+    m==="SSSC"
+    ?"block"
+    :"none";
+
+
+  $("upfcSymbol").style.display=
+    m==="UPFC"
+    ?"block"
+    :"none";
+
+
+  $("tcscPhasors").style.display=
+    m==="TCSC"
+    ?"block"
+    :"none";
+
+
+  $("ssscPhasors").style.display=
+    m==="SSSC"
+    ?"block"
+    :"none";
+
+
+  $("upfcPhasors").style.display=
+    m==="UPFC"
+    ?"block"
+    :"none";
+
+
+  if(m==="TCSC"){
+
+    $("svgFactsDescription").textContent=
+      "Thyristor-controlled variable series reactance";
+
+
+    $("controllerPrinciple").textContent=
+      "TCSC: Xeq = XL(1 − kc)";
+
+
+    $("status").textContent=
+      "TCSC active: series capacitive compensation reduces effective line reactance.";
+
+  }
+
+
+  if(m==="SSSC"){
+
+    $("svgFactsDescription").textContent=
+      "Voltage-source converter injects controllable series voltage";
+
+
+    $("controllerPrinciple").textContent=
+      "SSSC: Vse is controlled with respect to line current";
+
+
+    $("status").textContent=
+      "SSSC active: controllable series voltage regulates real and reactive power.";
+
+  }
+
+
+  if(m==="UPFC"){
+
+    $("svgFactsDescription").textContent=
+      "Series + shunt voltage-source converters";
+
+
+    $("controllerPrinciple").textContent=
+      "UPFC: simultaneous series and shunt compensation";
+
+
+    $("status").textContent=
+      "UPFC active: independent series and shunt control provides comprehensive P-Q regulation.";
+
+  }
+
+
+  update();
+
+}
+
+
+/* =====================================================
+   LABELS
+===================================================== */
+
+function labels(){
+
+  $("v1Text").textContent=
+    (+$("v1").value).toFixed(2)+" pu";
+
+
+  $("v2Text").textContent=
+    (+$("v2").value).toFixed(2)+" pu";
+
+
+  $("deltaText").textContent=
+    (+$("delta").value).toFixed(1)+"°";
+
+
+  $("xlText").textContent=
+    (+$("xl").value).toFixed(2)+" pu";
+
+
+  $("kcText").textContent=
+    $("kc").value+"%";
+
+
+  $("vqText").textContent=
+    (+$("vq").value).toFixed(2)+" pu";
+
+
+  $("vseText").textContent=
+    (+$("vse").value).toFixed(2)+" pu";
+
+
+  $("thetaText").textContent=
+    $("theta").value+"°";
+
+
+  $("vshText").textContent=
+    (+$("vsh").value).toFixed(2)+" pu";
+
+}
+
+
+/* =====================================================
+   PHASOR UPDATE
+===================================================== */
+
+function updatePhasors(){
+
+  const r=
+    calculate(mode);
+
+
+  const cx=600;
+  const cy=520;
+  const scale=300;
+
+
+  const delta=
+    rad(r.delta);
+
+
+  /* ================= V1 ================= */
+
+  const v1x=
+    cx+
+    scale*r.V1;
+
+
+  $("phasorV1")
+    .setAttribute("x2",v1x);
+
+
+  $("phasorV1")
+    .setAttribute("y2",cy);
+
+
+  /* ================= V2 ================= */
+
+  const v2x=
+    cx+
+    scale*r.Veff*
+    Math.cos(delta);
+
+
+  const v2y=
+    cy-
+    scale*r.Veff*
+    Math.sin(delta);
+
+
+  $("phasorV2")
+    .setAttribute("x2",v2x);
+
+
+  $("phasorV2")
+    .setAttribute("y2",v2y);
+
+
+  /* ================= CURRENT ================= */
+
+  const ix=
+    cx+
+    180*
+    Math.cos(delta/2);
+
+
+  const iy=
+    cy-
+    90*
+    Math.sin(delta/2);
+
+
+  $("phasorI")
+    .setAttribute("x2",ix);
+
+
+  $("phasorI")
+    .setAttribute("y2",iy);
+
+
+  /* ================= DELTA ================= */
+
+  $("deltaSVG").textContent=
+    "δ = "+
+    r.delta.toFixed(1)+
+    "°";
+
+
+  /* =================================================
+     SSSC SERIES VOLTAGE
+  ================================================= */
+
+  if(mode==="SSSC"){
+
+    const Vq=
+      +$("vq").value;
+
+
+    const vScale=400;
+
+
+    const x2=
+      cx+
+      vScale*Vq;
+
+
+    const y2=
+      cy-
+      vScale*Math.abs(Vq);
+
+
+    $("ssscVse")
+      .setAttribute("x2",x2);
+
+
+    $("ssscVse")
+      .setAttribute("y2",y2);
+
+  }
+
+
+  /* =================================================
+     UPFC SERIES VOLTAGE
+  ================================================= */
+
+  if(mode==="UPFC"){
+
+    const Vse=
+      +$("vse").value;
+
+
+    const theta=
+      rad(+$("theta").value);
+
+
+    const x2=
+      cx+
+      scale*
+      Vse*
+      Math.cos(theta);
+
+
+    const y2=
+      cy-
+      scale*
+      Vse*
+      Math.sin(theta);
+
+
+    $("upfcVse")
+      .setAttribute("x2",x2);
+
+
+    $("upfcVse")
+      .setAttribute("y2",y2);
+
+
+    /* Shunt voltage */
+
+    const Vsh=
+      +$("vsh").value;
+
+
+    const shuntScale=
+      150;
+
+
+    const shuntX=
+      cx-
+      shuntScale*
+      (Vsh-0.8);
+
+
+    const shuntY=
+      cy-
+      shuntScale*
+      Vsh;
+
+
+    $("upfcVsh")
+      .setAttribute("x2",shuntX);
+
+
+    $("upfcVsh")
+      .setAttribute("y2",shuntY);
+
+  }
+
+}
+
+
+/* =====================================================
+   CALCULATION TEXT
+===================================================== */
+
+function calculation(){
+
+  const r=
+    calculate(mode);
+
+
+  let explanation="";
+
+
+  if(mode==="TCSC"){
+
+    explanation=`
+
+      <b>TCSC calculation</b><br><br>
+
+      X<sub>eq</sub>
+      =
+      ${r.XL.toFixed(3)}
+      ×
+      (1 −
+      ${(+$("kc").value/100).toFixed(3)})
+      =
+      <b>${r.Xeq.toFixed(4)} pu</b>
+
+      <br><br>
+
+      P =
+      (V₁V₂/X<sub>eq</sub>)sinδ
+      =
+      <b>${r.P.toFixed(4)} pu</b>
+
+    `;
+
+  }
+
+
+  if(mode==="SSSC"){
+
+    explanation=`
+
+      <b>SSSC calculation</b><br><br>
+
+      The controllable quadrature
+      series voltage modifies the
+      effective transmission reactance.
+
+      <br><br>
+
+      X<sub>eq</sub>
+      =
+      <b>${r.Xeq.toFixed(4)} pu</b>
+
+      <br><br>
+
+      P =
+      (V₁V₂/X<sub>eq</sub>)sinδ
+      =
+      <b>${r.P.toFixed(4)} pu</b>
+
+    `;
+
+  }
+
+
+  if(mode==="UPFC"){
+
+    explanation=`
+
+      <b>UPFC calculation</b><br><br>
+
+      V<sub>se</sub>
+      =
+      ${$("vse").value} pu,
+
+      θ<sub>se</sub>
+      =
+      ${$("theta").value}°,
+
+      V<sub>sh</sub>
+      =
+      ${$("vsh").value} pu.
+
+      <br><br>
+
+      Effective receiving-side voltage:
+
+      <b>${r.Veff.toFixed(4)} pu</b>
+
+      <br><br>
+
+      P =
+      <b>${r.P.toFixed(4)} pu</b>
+
+    `;
+
+  }
+
+
+  $("calculation").innerHTML=
+    explanation;
+
+}
+
+
+/* =====================================================
+   CANVAS CHART ENGINE
+===================================================== */
+
+function drawChart(
+  canvas,
+  datasets,
+  xlabel,
+  ylabel
+){
+
+  const rect=
+    canvas.getBoundingClientRect();
+
+
+  const dpr=
+    window.devicePixelRatio||1;
+
+
+  canvas.width=
+    rect.width*dpr;
+
+
+  canvas.height=
+    rect.height*dpr;
+
+
+  const ctx=
+    canvas.getContext("2d");
+
+
+  ctx.scale(dpr,dpr);
+
+
+  const W=rect.width;
+  const H=rect.height;
+
+
+  const left=50;
+  const right=20;
+  const top=25;
+  const bottom=45;
+
+
+  const pw=
+    W-left-right;
+
+
+  const ph=
+    H-top-bottom;
+
+
+  let values=[];
+
+
+  datasets.forEach(d=>{
+
+    d.data.forEach(p=>{
+      values.push(p.y);
+    });
+
+  });
+
+
+  let ymin=
+    Math.min(...values);
+
+
+  let ymax=
+    Math.max(...values);
+
+
+  if(ymax-ymin<.1){
+
+    ymax+=.1;
+    ymin-=.1;
+
+  }
+
+
+  const margin=
+    (ymax-ymin)*.12;
+
+
+  ymin-=margin;
+  ymax+=margin;
+
+
+  function X(x){
+
+    return left+
+      (x/75)*pw;
+
+  }
+
+
+  function Y(y){
+
+    return top+
+      (ymax-y)/
+      (ymax-ymin)*ph;
+
+  }
+
+
+  /* GRID */
+
+  ctx.strokeStyle="#e3e8ef";
+  ctx.lineWidth=1;
+
+
+  for(let i=0;i<=5;i++){
+
+    const y=
+      top+i*ph/5;
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(left,y);
+
+    ctx.lineTo(
+      left+pw,
+      y
+    );
+
+    ctx.stroke();
+
+
+    const value=
+      ymax-
+      i*(ymax-ymin)/5;
+
+
+    ctx.fillStyle="#667085";
+
+    ctx.font="10px Arial";
+
+    ctx.textAlign="right";
+
+
+    ctx.fillText(
+      value.toFixed(2),
+      left-7,
+      y+3
+    );
+
+  }
+
+
+  for(let i=0;i<=5;i++){
+
+    const x=
+      left+
+      i*pw/5;
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(x,top);
+
+    ctx.lineTo(
+      x,
+      top+ph
+    );
+
+    ctx.stroke();
+
+
+    ctx.fillStyle="#667085";
+
+    ctx.textAlign="center";
+
+
+    ctx.fillText(
+      (i*15).toFixed(0),
+      x,
+      H-bottom+18
+    );
+
+  }
+
+
+  /* CURVES */
+
+  datasets.forEach(ds=>{
+
+    ctx.beginPath();
+
+
+    ds.data.forEach((p,i)=>{
+
+      const x=X(p.x);
+      const y=Y(p.y);
+
+
+      if(i===0)
+        ctx.moveTo(x,y);
+      else
+        ctx.lineTo(x,y);
+
+    });
+
+
+    ctx.strokeStyle=
+      ds.color;
+
+
+    ctx.lineWidth=3;
+
+    ctx.stroke();
+
+  });
+
+
+  /* AXES */
+
+  ctx.strokeStyle="#77869a";
+
+  ctx.lineWidth=1.4;
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    left,
+    top
+  );
+
+  ctx.lineTo(
+    left,
+    top+ph
+  );
+
+  ctx.lineTo(
+    left+pw,
+    top+ph
+  );
+
+  ctx.stroke();
+
+
+  /* X LABEL */
+
+  ctx.fillStyle="#344054";
+
+  ctx.font="11px Arial";
+
+  ctx.textAlign="center";
+
+
+  ctx.fillText(
+    xlabel,
+    left+pw/2,
+    H-8
+  );
+
+
+  /* Y LABEL */
+
+  ctx.save();
+
+
+  ctx.translate(
+    13,
+    top+ph/2
+  );
+
+
+  ctx.rotate(
+    -Math.PI/2
+  );
+
+
+  ctx.fillText(
+    ylabel,
+    0,
+    0
+  );
+
+
+  ctx.restore();
+
+
+  /* LEGEND */
+
+  let lx=
+    left+8;
+
+
+  datasets.forEach(ds=>{
+
+    ctx.fillStyle=
+      ds.color;
+
+
+    ctx.fillRect(
+      lx,
+      8,
+      22,
+      4
+    );
+
+
+    ctx.fillStyle="#344054";
+
+    ctx.textAlign="left";
+
+
+    ctx.fillText(
+      ds.label,
+      lx+28,
+      13
+    );
+
+
+    lx+=90;
+
+  });
+
+}
+
+
+/* =====================================================
+   CURVES
+===================================================== */
+
+function curve(
+  controller,
+  type
+){
+
+  const data=[];
+
+
+  for(
+    let d=0;
+    d<=75;
+    d+=1
+  ){
+
+    const r=
+      calculate(
+        controller,
+        d
+      );
+
+
+    data.push({
+      x:d,
+      y:type==="P"
+        ?r.P
+        :r.Q
+    });
+
+  }
+
+
+  return data;
+
+}
+
+
+/* =====================================================
+   UPDATE CHARTS
+===================================================== */
+
+function updateCharts(){
+
+  const p=
+    calculate(mode);
+
+
+  const color=
+    mode==="TCSC"
+    ?"#1769d2"
+    :
+    mode==="SSSC"
+    ?"#009b73"
+    :
+    "#7048e8";
+
+
+  drawChart(
+
+    $("pChart"),
+
+    [{
+      label:mode,
+      color:color,
+      data:curve(mode,"P")
+    }],
+
+    "Power angle δ (degrees)",
+
+    "Active power P (pu)"
+
+  );
+
+
+  drawChart(
+
+    $("qChart"),
+
+    [{
+      label:mode,
+      color:color,
+      data:curve(mode,"Q")
+    }],
+
+    "Power angle δ (degrees)",
+
+    "Reactive power Q (pu)"
+
+  );
+
+
+  const controllers=[
+    "TCSC",
+    "SSSC",
+    "UPFC"
+  ];
+
+
+  drawChart(
+
+    $("compareChart"),
+
+    controllers.map(c=>({
+
+      label:c,
+
+      color:
+        c==="TCSC"
+        ?"#1769d2"
+        :
+        c==="SSSC"
+        ?"#009b73"
+        :
+        "#7048e8",
+
+      data:[
+        {
+          x:0,
+          y:calculate(c).P
+        },
+        {
+          x:75,
+          y:calculate(c,75).P
+        }
+      ]
+
+    })),
+
+    "Power-angle reference",
+
+    "P (pu)"
+
+  );
+
+
+  drawChart(
+
+    $("voltageChart"),
+
+    [
+
+      {
+        label:"V₁",
+        color:"#1769d2",
+
+        data:[
+          {
+            x:0,
+            y:+$("v1").value
+          },
+          {
+            x:75,
+            y:+$("v1").value
+          }
+        ]
+
+      },
+
+
+      {
+        label:"V₂",
+        color:"#009b73",
+
+        data:[
+          {
+            x:0,
+            y:p.Veff
+          },
+          {
+            x:75,
+            y:p.Veff
+          }
+        ]
+
+      }
+
+    ],
+
+    "Power-angle reference",
+
+    "Voltage (pu)"
+
+  );
+
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+function table(){
+
+  const rows=[
+
+    [
+      "TCSC",
+      "Variable series reactance"
+    ],
+
+    [
+      "SSSC",
+      "Controllable series voltage"
+    ],
+
+    [
+      "UPFC",
+      "Series + shunt voltage control"
+    ]
+
+  ];
+
+
+  $("comparisonTable").innerHTML=
+
+    rows.map(row=>{
+
+      const r=
+        calculate(row[0]);
+
+
+      return `
+
+      <tr
+        ${row[0]===mode
+          ?'style="background:#edf5ff"'
+          :''}>
+
+        <td>
+          <b>${row[0]}</b>
+        </td>
+
+        <td>
+          ${r.Xeq.toFixed(3)}
+        </td>
+
+        <td
+          style="
+            color:#1769d2;
+            font-weight:bold;
+          ">
+
+          ${r.P.toFixed(3)}
+
+        </td>
+
+        <td>
+          ${r.Q.toFixed(3)}
+        </td>
+
+        <td>
+          ${r.I.toFixed(3)}
+        </td>
+
+        <td>
+          ${row[1]}
+        </td>
+
+      </tr>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =====================================================
+   MAIN UPDATE
+===================================================== */
+
+function update(){
+
+  labels();
+
+
+  const r=
+    calculate(mode);
+
+
+  $("P").textContent=
+    r.P.toFixed(3);
+
+
+  $("Q").textContent=
+    r.Q.toFixed(3);
+
+
+  $("I").textContent=
+    r.I.toFixed(3);
+
+
+  $("Xeq").textContent=
+    r.Xeq.toFixed(3);
+
+
+  $("Pmax").textContent=
+    r.Pmax.toFixed(3);
+
+
+  calculation();
+
+  updatePhasors();
+
+  updateCharts();
+
+  table();
+
+}
+
+
+/* =====================================================
+   RECOMMENDED CASE
+===================================================== */
+
+function recommended(){
+
+  $("v1").value=1;
+
+  $("v2").value=1;
+
+  $("xl").value=.4;
+
+  $("delta").value=30;
+
+  $("kc").value=30;
+
+  $("vq").value=.1;
+
+  $("vse").value=.1;
+
+  $("theta").value=90;
+
+  $("vsh").value=1;
+
+
+  setMode("TCSC");
+
+}
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+function resetLab(){
+
+  $("v1").value=1;
+
+  $("v2").value=1;
+
+  $("xl").value=.4;
+
+  $("delta").value=30;
+
+  $("kc").value=0;
+
+  $("vq").value=0;
+
+  $("vse").value=0;
+
+  $("theta").value=90;
+
+  $("vsh").value=1;
+
+
+  setMode("TCSC");
+
+}
+
+
+/* =====================================================
+   EVENT LISTENERS
+===================================================== */
+
+[
+  "v1",
+  "v2",
+  "delta",
+  "xl",
+  "kc",
+  "vq",
+  "vse",
+  "theta",
+  "vsh"
+
+].forEach(id=>{
+
+  $(id).addEventListener(
+    "input",
+    update
+  );
+
+});
+
+
+window.addEventListener(
+  "resize",
+  update
+);
+
+
+/* =====================================================
+   START
+===================================================== */
+
+recommended();
+
+</script>
+
+</body>
+</html>
